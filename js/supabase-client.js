@@ -14,7 +14,7 @@ async function testConnection() {
     const statusText = document.querySelector('.status-text');
 
     try {
-        const { data, error } = await sb.from('ideas_brainstorm').select('id').limit(1);
+        const { error } = await sb.from('ideas_brainstorm').select('id').limit(1);
 
         if (error) throw error;
 
@@ -32,46 +32,31 @@ async function testConnection() {
 // Generic CRUD helpers
 const db = {
     async getAll(table, orderBy = 'created_at', ascending = false) {
-        const { data, error } = await sb
-            .from(table)
-            .select('*')
-            .order(orderBy, { ascending });
+        const { data, error } = await sb.from(table).select('*').order(orderBy, { ascending });
         if (error) throw error;
         return data;
     },
 
     async getCount(table) {
-        const { count, error } = await sb
-            .from(table)
-            .select('*', { count: 'exact', head: true });
+        const { count, error } = await sb.from(table).select('*', { count: 'exact', head: true });
         if (error) throw error;
         return count;
     },
 
     async insert(table, row) {
-        const { data, error } = await sb
-            .from(table)
-            .insert(row)
-            .select();
+        const { data, error } = await sb.from(table).insert(row).select();
         if (error) throw error;
         return data[0];
     },
 
     async update(table, id, updates) {
-        const { data, error } = await sb
-            .from(table)
-            .update(updates)
-            .eq('id', id)
-            .select();
+        const { data, error } = await sb.from(table).update(updates).eq('id', id).select();
         if (error) throw error;
         return data[0];
     },
 
     async remove(table, id) {
-        const { error } = await sb
-            .from(table)
-            .delete()
-            .eq('id', id);
+        const { error } = await sb.from(table).delete().eq('id', id);
         if (error) throw error;
         return true;
     },
@@ -91,7 +76,7 @@ const db = {
         // Apply ordering
         if (options.orderBy) {
             query = query.order(options.orderBy, {
-                ascending: options.ascending ?? false
+                ascending: options.ascending ?? false,
             });
         }
 
@@ -103,5 +88,5 @@ const db = {
         const { data, error } = await query;
         if (error) throw error;
         return data;
-    }
+    },
 };

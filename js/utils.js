@@ -18,7 +18,7 @@ function formatDate(dateStr) {
         return date.toLocaleDateString('id-ID', {
             day: 'numeric',
             month: 'short',
-            year: 'numeric'
+            year: 'numeric',
         });
     } catch {
         return dateStr;
@@ -34,7 +34,7 @@ function formatDateTime(dateStr) {
             month: 'short',
             year: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     } catch {
         return dateStr;
@@ -46,7 +46,7 @@ function formatCurrency(amount) {
     if (amount === null || amount === undefined) return '0';
     return Number(amount).toLocaleString('id-ID', {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
     });
 }
 
@@ -85,7 +85,7 @@ async function withRetry(fn, maxRetries = 2, delayMs = 1000) {
         } catch (err) {
             if (attempt === maxRetries) throw err;
             console.warn(`Retry ${attempt + 1}/${maxRetries} after error:`, err.message);
-            await new Promise(r => setTimeout(r, delayMs));
+            await new Promise((r) => setTimeout(r, delayMs));
             delayMs *= 2; // exponential backoff
         }
     }

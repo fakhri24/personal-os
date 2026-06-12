@@ -12,7 +12,7 @@ const FilesTable = {
         { key: 'new_name', label: 'New Name', type: 'text' },
         { key: 'file_path', label: 'File Path', type: 'text' },
         { key: 'category', label: 'Category', type: 'text' },
-        { key: 'indexed_at', label: 'Indexed At', type: 'datetime-local' }
+        { key: 'indexed_at', label: 'Indexed At', type: 'datetime-local' },
     ],
 
     renderRow(item) {
@@ -35,7 +35,7 @@ const FilesTable = {
 
     getDefaultValues() {
         return {
-            indexed_at: new Date().toISOString()
+            indexed_at: new Date().toISOString(),
         };
-    }
+    },
 };

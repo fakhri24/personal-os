@@ -9,18 +9,24 @@ const ClothesTable = {
 
     columns: [
         { key: 'clothing_name', label: 'Clothing Name', type: 'text', required: true },
-        { key: 'status', label: 'Status', type: 'select', options: ['Bersih', 'Dipakai', 'Di Keranjang Cuci', 'Sedang Dijemur'] },
+        {
+            key: 'status',
+            label: 'Status',
+            type: 'select',
+            options: ['Bersih', 'Dipakai', 'Di Keranjang Cuci', 'Sedang Dijemur'],
+        },
         { key: 'last_worn', label: 'Last Worn', type: 'date' },
-        { key: 'last_washed', label: 'Last Washed', type: 'date' }
+        { key: 'last_washed', label: 'Last Washed', type: 'date' },
     ],
 
     renderRow(item) {
-        const statusClass = {
-            'Bersih': 'badge-bersih',
-            'Dipakai': 'badge-dipakai',
-            'Di Keranjang Cuci': 'badge-cuci',
-            'Sedang Dijemur': 'badge-jemur'
-        }[item.status] || 'badge-bersih';
+        const statusClass =
+            {
+                Bersih: 'badge-bersih',
+                Dipakai: 'badge-dipakai',
+                'Di Keranjang Cuci': 'badge-cuci',
+                'Sedang Dijemur': 'badge-jemur',
+            }[item.status] || 'badge-bersih';
 
         return `
             <tr>
@@ -42,7 +48,7 @@ const ClothesTable = {
         return {
             status: 'Bersih',
             last_worn: null,
-            last_washed: new Date().toISOString().split('T')[0]
+            last_washed: new Date().toISOString().split('T')[0],
         };
-    }
+    },
 };

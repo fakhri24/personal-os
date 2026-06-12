@@ -12,7 +12,7 @@ const PackageTable = {
         { key: 'receipt_number', label: 'Receipt Number', type: 'text', required: true },
         { key: 'package_name', label: 'Package Name', type: 'text' },
         { key: 'last_status', label: 'Last Status', type: 'text' },
-        { key: 'last_checked', label: 'Last Checked', type: 'datetime-local' }
+        { key: 'last_checked', label: 'Last Checked', type: 'datetime-local' },
     ],
 
     renderRow(item) {
@@ -36,7 +36,7 @@ const PackageTable = {
     getDefaultValues() {
         return {
             last_status: 'Not checked yet',
-            last_checked: null
+            last_checked: null,
         };
-    }
+    },
 };

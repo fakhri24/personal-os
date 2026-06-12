@@ -9,7 +9,7 @@ const TABLES = {
     learning_reminders: LearningTable,
     package_tracker: PackageTable,
     local_files_index: FilesTable,
-    finance_tracker: FinanceTable
+    finance_tracker: FinanceTable,
 };
 
 // Current state
@@ -51,14 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 // === NAVIGATION ===
 function navigateTo(tableName) {
     // Update active nav button
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('.nav-btn').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.table === tableName);
     });
 
     // Update page title
-    const title = tableName === 'dashboard'
-        ? 'Dashboard'
-        : TABLES[tableName]?.displayName || tableName;
+    const title =
+        tableName === 'dashboard' ? 'Dashboard' : TABLES[tableName]?.displayName || tableName;
     document.getElementById('pageTitle').textContent = title;
 
     // Show/hide add button
@@ -66,7 +65,7 @@ function navigateTo(tableName) {
         tableName === 'dashboard' ? 'none' : 'inline-flex';
 
     // Switch views
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
     const view = document.getElementById(`view-${tableName}`);
     if (view) view.classList.add('active');
 
@@ -93,14 +92,12 @@ async function loadDashboardStats() {
         learning_reminders: document.getElementById('stat-learning'),
         package_tracker: document.getElementById('stat-packages'),
         local_files_index: document.getElementById('stat-files'),
-        finance_tracker: document.getElementById('stat-finance')
+        finance_tracker: document.getElementById('stat-finance'),
     };
 
     const tables = Object.keys(elements);
 
-    const results = await Promise.allSettled(
-        tables.map(table => db.getCount(table))
-    );
+    const results = await Promise.allSettled(tables.map((table) => db.getCount(table)));
 
     results.forEach((result, i) => {
         const el = elements[tables[i]];
@@ -116,38 +113,45 @@ async function loadDashboardStats() {
 async function loadUpcomingReviews() {
     const container = document.getElementById('upcomingReviews');
     try {
-        const reviews = await db.query('learning_reminders', {}, {
-            orderBy: 'next_review',
-            ascending: true,
-            limit: 5
-        });
+        const reviews = await db.query(
+            'learning_reminders',
+            {},
+            {
+                orderBy: 'next_review',
+                ascending: true,
+                limit: 5,
+            },
+        );
 
         if (!reviews || reviews.length === 0) {
-            container.innerHTML = '<p class="empty-state">No topics added yet. Add your first learning topic!</p>';
+            container.innerHTML =
+                '<p class="empty-state">No topics added yet. Add your first learning topic!</p>';
             return;
         }
 
-        container.innerHTML = reviews.map(item => {
-            const isOverdue = isDateOverdue(item.next_review);
-            const isToday = isDateToday(item.next_review);
-            let dateClass = '';
-            let dateLabel = formatDate(item.next_review);
+        container.innerHTML = reviews
+            .map((item) => {
+                const isOverdue = isDateOverdue(item.next_review);
+                const isToday = isDateToday(item.next_review);
+                let dateClass = '';
+                let dateLabel = formatDate(item.next_review);
 
-            if (isOverdue) {
-                dateClass = 'overdue';
-                dateLabel = '⚠ Overdue';
-            } else if (isToday) {
-                dateClass = 'today';
-                dateLabel = '📌 Today';
-            }
+                if (isOverdue) {
+                    dateClass = 'overdue';
+                    dateLabel = '⚠ Overdue';
+                } else if (isToday) {
+                    dateClass = 'today';
+                    dateLabel = '📌 Today';
+                }
 
-            return `
+                return `
                 <div class="review-item" onclick="navigateTo('learning_reminders')">
                     <span class="review-topic">${escapeHtml(item.topic_name)}</span>
                     <span class="review-date ${dateClass}">${dateLabel}</span>
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
     } catch (err) {
         container.innerHTML = '<p class="empty-state">Unable to load reviews</p>';
     }
@@ -170,7 +174,7 @@ async function loadTableData(tableName) {
             clothes_tracker: 'last_worn',
             learning_reminders: 'next_review',
             package_tracker: 'last_checked',
-            local_files_index: 'indexed_at'
+            local_files_index: 'indexed_at',
         };
         const orderBy = SORT_COLUMNS[tableName] || 'created_at';
         const data = await db.getAll(tableName, orderBy);
@@ -190,8 +194,8 @@ async function loadTableData(tableName) {
         }
 
         // Build table headers
-        const headers = tableConfig.columns.map(col => `<th>${col.label}</th>`).join('');
-        const rows = data.map(item => tableConfig.renderRow(item)).join('');
+        const headers = tableConfig.columns.map((col) => `<th>${col.label}</th>`).join('');
+        const rows = data.map((item) => tableConfig.renderRow(item)).join('');
 
         view.innerHTML = `
             <div class="table-container">
@@ -228,48 +232,54 @@ function openModal(editData = null) {
 
     editingId = editData ? editData.id : null;
 
-    document.getElementById('modalTitle').textContent =
-        editData ? `Edit ${tableConfig.displayName}` : `Add New ${tableConfig.displayName}`;
+    document.getElementById('modalTitle').textContent = editData
+        ? `Edit ${tableConfig.displayName}`
+        : `Add New ${tableConfig.displayName}`;
 
     const defaults = editData || tableConfig.getDefaultValues();
     const formFields = document.getElementById('formFields');
 
-    formFields.innerHTML = tableConfig.columns.map(col => {
-        const value = defaults[col.key] || '';
-        const required = col.required ? 'required' : '';
+    formFields.innerHTML = tableConfig.columns
+        .map((col) => {
+            const value = defaults[col.key] || '';
+            const required = col.required ? 'required' : '';
 
-        let input;
-        switch (col.type) {
-            case 'textarea':
-                input = `<textarea id="field-${col.key}" ${required} placeholder="Enter ${col.label.toLowerCase()}...">${escapeHtml(value)}</textarea>`;
-                break;
-            case 'select':
-                const options = col.options.map(opt =>
-                    `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`
-                ).join('');
-                input = `<select id="field-${col.key}" ${required}>${options}</select>`;
-                break;
-            case 'date':
-                input = `<input type="date" id="field-${col.key}" value="${value}" ${required}>`;
-                break;
-            case 'datetime-local':
-                const dtValue = value ? new Date(value).toISOString().slice(0, 16) : '';
-                input = `<input type="datetime-local" id="field-${col.key}" value="${dtValue}" ${required}>`;
-                break;
-            case 'number':
-                input = `<input type="number" id="field-${col.key}" value="${value}" min="1" ${required}>`;
-                break;
-            default:
-                input = `<input type="text" id="field-${col.key}" value="${escapeHtml(value)}" ${required} placeholder="Enter ${col.label.toLowerCase()}...">`;
-        }
+            let input;
+            switch (col.type) {
+                case 'textarea':
+                    input = `<textarea id="field-${col.key}" ${required} placeholder="Enter ${col.label.toLowerCase()}...">${escapeHtml(value)}</textarea>`;
+                    break;
+                case 'select':
+                    const options = col.options
+                        .map(
+                            (opt) =>
+                                `<option value="${opt}" ${value === opt ? 'selected' : ''}>${opt}</option>`,
+                        )
+                        .join('');
+                    input = `<select id="field-${col.key}" ${required}>${options}</select>`;
+                    break;
+                case 'date':
+                    input = `<input type="date" id="field-${col.key}" value="${value}" ${required}>`;
+                    break;
+                case 'datetime-local':
+                    const dtValue = value ? new Date(value).toISOString().slice(0, 16) : '';
+                    input = `<input type="datetime-local" id="field-${col.key}" value="${dtValue}" ${required}>`;
+                    break;
+                case 'number':
+                    input = `<input type="number" id="field-${col.key}" value="${value}" min="1" ${required}>`;
+                    break;
+                default:
+                    input = `<input type="text" id="field-${col.key}" value="${escapeHtml(value)}" ${required} placeholder="Enter ${col.label.toLowerCase()}...">`;
+            }
 
-        return `
+            return `
             <div class="form-group">
                 <label for="field-${col.key}">${col.label}</label>
                 ${input}
             </div>
         `;
-    }).join('');
+        })
+        .join('');
 
     document.getElementById('submitBtn').textContent = editData ? 'Update' : 'Save';
     document.getElementById('modalOverlay').classList.add('active');
@@ -290,7 +300,7 @@ async function handleFormSubmit(event) {
 
     // Collect form data
     const formData = {};
-    tableConfig.columns.forEach(col => {
+    tableConfig.columns.forEach((col) => {
         const field = document.getElementById(`field-${col.key}`);
         if (field) {
             let value = field.value.trim();
@@ -328,7 +338,7 @@ async function editRow(tableName, id) {
     const data = tableData[tableName];
     if (!data) return;
 
-    const item = data.find(r => r.id === id);
+    const item = data.find((r) => r.id === id);
     if (!item) return;
 
     navigateTo(tableName);

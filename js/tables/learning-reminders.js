@@ -11,7 +11,7 @@ const LearningTable = {
         { key: 'topic_name', label: 'Topic Name', type: 'text', required: true },
         { key: 'last_reviewed', label: 'Last Reviewed', type: 'date' },
         { key: 'interval_days', label: 'Interval (Days)', type: 'number' },
-        { key: 'next_review', label: 'Next Review', type: 'date' }
+        { key: 'next_review', label: 'Next Review', type: 'date' },
     ],
 
     renderRow(item) {
@@ -51,9 +51,9 @@ const LearningTable = {
         return {
             last_reviewed: today,
             interval_days: 1,
-            next_review: today
+            next_review: today,
         };
-    }
+    },
 };
 
 // Mark a topic as reviewed today and calculate next review
@@ -83,10 +83,13 @@ async function markReviewed(id) {
         await db.update('learning_reminders', id, {
             last_reviewed: today,
             next_review: nextReview,
-            interval_days: Math.min(interval * 2, 30) // Double interval, max 30 days
+            interval_days: Math.min(interval * 2, 30), // Double interval, max 30 days
         });
 
-        showToast(`"${item.topic_name}" marked as reviewed! Next: ${formatDate(nextReview)}`, 'success');
+        showToast(
+            `"${item.topic_name}" marked as reviewed! Next: ${formatDate(nextReview)}`,
+            'success',
+        );
         loadTableData('learning_reminders');
     } catch (err) {
         showToast('Error: ' + err.message, 'error');

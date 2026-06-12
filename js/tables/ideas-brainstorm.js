@@ -11,15 +11,16 @@ const IdeasTable = {
         { key: 'title', label: 'Title', type: 'text', required: true },
         { key: 'description', label: 'Description', type: 'textarea' },
         { key: 'category', label: 'Category', type: 'text' },
-        { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Done', 'Archived'] }
+        { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Done', 'Archived'] },
     ],
 
     renderRow(item) {
-        const statusClass = {
-            'Active': 'badge-idea',
-            'Done': 'badge-done',
-            'Archived': 'badge-archived'
-        }[item.status] || 'badge-idea';
+        const statusClass =
+            {
+                Active: 'badge-idea',
+                Done: 'badge-done',
+                Archived: 'badge-archived',
+            }[item.status] || 'badge-idea';
 
         return `
             <tr>
@@ -40,7 +41,7 @@ const IdeasTable = {
 
     getDefaultValues() {
         return {
-            status: 'Active'
+            status: 'Active',
         };
-    }
+    },
 };

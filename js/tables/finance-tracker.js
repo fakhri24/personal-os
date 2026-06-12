@@ -10,8 +10,14 @@ const FinanceTable = {
     columns: [
         { key: 'title', label: 'Title', type: 'text', required: true },
         { key: 'amount', label: 'Amount (Rp)', type: 'number', required: true },
-        { key: 'type', label: 'Type', type: 'select', options: ['Income', 'Expense'], required: true },
-        { key: 'category', label: 'Category', type: 'text' }
+        {
+            key: 'type',
+            label: 'Type',
+            type: 'select',
+            options: ['Income', 'Expense'],
+            required: true,
+        },
+        { key: 'category', label: 'Category', type: 'text' },
     ],
 
     renderRow(item) {
@@ -42,9 +48,9 @@ const FinanceTable = {
 
     getDefaultValues() {
         return {
-            type: 'Expense'
+            type: 'Expense',
         };
-    }
+    },
 };
 
 // Finance tracker uses formatCurrency from utils.js
