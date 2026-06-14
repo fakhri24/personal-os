@@ -51,4 +51,48 @@ const ClothesTable = {
             last_washed: new Date().toISOString().split('T')[0],
         };
     },
+
+    renderStats(data) {
+        const total = data.length;
+        const bersih = data.filter(function (i) {
+            return i.status === 'Bersih';
+        }).length;
+
+        const cuciAll = data.filter(function (i) {
+            return i.status === 'Di Keranjang Cuci';
+        });
+        const cuciPure = cuciAll.filter(function (i) {
+            const name = i.clothing_name.toLowerCase();
+            return !name.startsWith('cd ') && !name.startsWith('kaos kaki ');
+        });
+
+        const cuciText =
+            cuciPure.length < cuciAll.length
+                ? cuciAll.length + ' (' + cuciPure.length + ')'
+                : String(cuciAll.length);
+
+        // Using string concatenation to avoid template-literal escaping issues
+        return (
+            '<div class="clothes-stats">' +
+            '<div class="clothes-stat">' +
+            '<span class="clothes-stat-value">' +
+            total +
+            '</span>' +
+            '<span class="clothes-stat-label">Total</span>' +
+            '</div>' +
+            '<div class="clothes-stat">' +
+            '<span class="clothes-stat-value bersih">' +
+            bersih +
+            '</span>' +
+            '<span class="clothes-stat-label">Bersih</span>' +
+            '</div>' +
+            '<div class="clothes-stat">' +
+            '<span class="clothes-stat-value cuci">' +
+            cuciText +
+            '</span>' +
+            '<span class="clothes-stat-label">Cucian</span>' +
+            '</div>' +
+            '</div>'
+        );
+    },
 };

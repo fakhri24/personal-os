@@ -170,6 +170,21 @@
                     </svg>
                     <span>Finance</span>
                 </button>
+                <button class="nav-btn" data-table="to_learn" onclick="navigateTo('to_learn')">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                        />
+                    </svg>
+                    <span>To Learn</span>
+                </button>
             </nav>
 
             <div class="sidebar-footer">
@@ -197,6 +212,29 @@
                     </svg>
                 </button>
                 <h2 class="page-title" id="pageTitle">Dashboard</h2>
+                <div class="search-wrapper" id="searchWrapper">
+                    <svg
+                        class="search-icon"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Cari data..."
+                        autocomplete="off"
+                    />
+                    <button class="search-clear" id="searchClear" onclick="clearSearch()">
+                        &times;
+                    </button>
+                </div>
                 <div class="topbar-actions">
                     <button
                         class="btn btn-primary"
@@ -334,6 +372,26 @@
                                 <span class="stat-label">Finance</span>
                             </div>
                         </div>
+                        <div class="stat-card" onclick="navigateTo('to_learn')">
+                            <div class="stat-icon to-learn">
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                    />
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="stat-tolearn">—</span>
+                                <span class="stat-label">To Learn</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Quick Actions -->
@@ -409,6 +467,7 @@
                 <div class="view" id="view-package_tracker"></div>
                 <div class="view" id="view-local_files_index"></div>
                 <div class="view" id="view-finance_tracker"></div>
+                <div class="view" id="view-to_learn"></div>
             </section>
         </main>
 
@@ -443,6 +502,7 @@
         <script src="js/tables/package-tracker.js"></script>
         <script src="js/tables/local-files-index.js"></script>
         <script src="js/tables/finance-tracker.js"></script>
+        <script src="js/tables/to-learn.js"></script>
         <script src="js/app.js"></script>
     </body>
 </html>

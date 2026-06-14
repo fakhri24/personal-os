@@ -10,12 +10,15 @@ const TABLES = {
     package_tracker: PackageTable,
     local_files_index: FilesTable,
     finance_tracker: FinanceTable,
+    to_learn: ToLearnTable,
 };
 
 // Current state
 let currentTable = 'dashboard';
 let editingId = null;
 let tableData = {};
+let searchQuery = '';
+let searchTimeout = null;
 
 // === REALTIME SUBSCRIPTION ===
 function initRealtimeSubscription() {
@@ -71,6 +74,15 @@ function navigateTo(tableName) {
 
     currentTable = tableName;
 
+    // Show/hide search bar
+    const searchWrapper = document.getElementById('searchWrapper');
+    if (tableName === 'dashboard') {
+        searchWrapper.classList.remove('visible');
+        clearSearch();
+    } else {
+        searchWrapper.classList.add('visible');
+    }
+
     // Load data if not dashboard
     if (tableName !== 'dashboard') {
         loadTableData(tableName);
@@ -93,6 +105,7 @@ async function loadDashboardStats() {
         package_tracker: document.getElementById('stat-packages'),
         local_files_index: document.getElementById('stat-files'),
         finance_tracker: document.getElementById('stat-finance'),
+        to_learn: document.getElementById('stat-tolearn'),
     };
 
     const tables = Object.keys(elements);
@@ -175,9 +188,14 @@ async function loadTableData(tableName) {
             learning_reminders: 'next_review',
             package_tracker: 'last_checked',
             local_files_index: 'indexed_at',
+            to_learn: 'sort_order',
+        };
+        const SORT_ASCENDING = {
+            to_learn: true,
         };
         const orderBy = SORT_COLUMNS[tableName] || 'created_at';
-        const data = await db.getAll(tableName, orderBy);
+        const ascending = SORT_ASCENDING[tableName] || false;
+        const data = await db.getAll(tableName, orderBy, ascending);
         tableData[tableName] = data;
 
         if (!data || data.length === 0) {
@@ -195,19 +213,27 @@ async function loadTableData(tableName) {
 
         // Build table headers
         const headers = tableConfig.columns.map((col) => `<th>${col.label}</th>`).join('');
-        const rows = data.map((item) => tableConfig.renderRow(item)).join('');
+        const filteredData = getFilteredData(tableName, data);
+        const rows = filteredData.map((item) => tableConfig.renderRow(item)).join('');
+
+        // Render custom stats bar if the table module defines one
+        let statsHTML = '';
+        if (tableConfig.renderStats) {
+            statsHTML = tableConfig.renderStats(data);
+        }
 
         view.innerHTML = `
+            ${statsHTML}
             <div class="table-container">
                 <div class="table-header">
                     <span class="table-title">${tableConfig.displayName}</span>
-                    <span class="table-count">${data.length} items</span>
+                    <span class="table-count" id="tableCount-${tableName}">${filteredData.length} items</span>
                 </div>
                 <table class="data-table">
                     <thead>
                         <tr>${headers}<th>Actions</th></tr>
                     </thead>
-                    <tbody>${rows}</tbody>
+                    <tbody id="tableBody-${tableName}">${rows}</tbody>
                 </table>
             </div>
         `;
@@ -373,4 +399,85 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         openModal();
     }
+    // "/" to focus search (when not typing in an input)
+    if (
+        e.key === '/' &&
+        !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) &&
+        currentTable !== 'dashboard'
+    ) {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+    }
 });
+
+// === SEARCH ===
+function initSearchListener() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchQuery = searchInput.value.trim().toLowerCase();
+            const clearBtn = document.getElementById('searchClear');
+            clearBtn.classList.toggle('visible', searchQuery.length > 0);
+            filterTableRows();
+        }, 150);
+    });
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    searchQuery = '';
+    document.getElementById('searchClear').classList.remove('visible');
+    if (currentTable !== 'dashboard') {
+        filterTableRows();
+    }
+}
+
+function getFilteredData(tableName, data) {
+    if (!searchQuery) return data;
+
+    const config = TABLES[tableName];
+    if (!config) return data;
+
+    const searchKeys = config.columns.map((col) => col.key);
+
+    return data.filter((item) =>
+        searchKeys.some((key) => {
+            const val = item[key];
+            if (val === null || val === undefined) return false;
+            return String(val).toLowerCase().includes(searchQuery);
+        }),
+    );
+}
+
+function filterTableRows() {
+    const tableName = currentTable;
+    if (tableName === 'dashboard') return;
+
+    const config = TABLES[tableName];
+    const data = tableData[tableName];
+    if (!config || !data) return;
+
+    const filtered = getFilteredData(tableName, data);
+
+    // Update rows
+    const tbody = document.getElementById(`tableBody-${tableName}`);
+    if (tbody) {
+        tbody.innerHTML =
+            filtered.length > 0
+                ? filtered.map((item) => config.renderRow(item)).join('')
+                : `<tr><td colspan="${config.columns.length + 1}" class="no-results">Tidak ada hasil untuk "${escapeHtml(searchQuery)}"</td></tr>`;
+    }
+
+    // Update count
+    const countEl = document.getElementById(`tableCount-${tableName}`);
+    if (countEl) {
+        countEl.textContent = searchQuery
+            ? `${filtered.length} / ${data.length} items`
+            : `${data.length} items`;
+    }
+}
+
+// Initialize search on DOM ready
+document.addEventListener('DOMContentLoaded', initSearchListener);
